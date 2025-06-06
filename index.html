@@ -2,7 +2,7 @@
 <html lang="ne">
 <head>
   <meta charset="UTF-8" />
-  <title>जानकारी</title>
+  <title>Triping Shutdown time</title>
   <style>
     body {
       font-family: 'Times New Roman', Times, serif;
@@ -23,7 +23,6 @@
     h3 { color: #f10d0d; margin-bottom: 20px; }
 
     label {
-      font-family: 'Times New Roman', Times, serif;
       font-size: 18px;
       font-weight: bold;
     }
@@ -140,6 +139,7 @@
     <input type="text" id="toDate" placeholder="2082-02-13" />
 
     <button onclick="searchData()">Search</button>
+    <button onclick="printTable()">Print</button>
   </div>
 
   <div class="notice"><b>
@@ -242,6 +242,33 @@
         console.error("त्रुटि:", err);
         tbody.innerHTML = '<tr><td colspan="8">डाटा लोड गर्न सकिएन। पछि प्रयास गर्नुहोस्।</td></tr>';
       }
+    }
+
+    function printTable() {
+      const table = document.getElementById("resultTable");
+      const newWin = window.open("");
+      newWin.document.write(`
+        <html>
+          <head>
+            <title>Print table</title>
+            <style>
+              table { width: 100%; border-collapse: collapse; font-family: 'Times New Roman'; }
+              th, td { border: 1px solid black; padding: 8px; text-align: left; }
+              th { background-color: #1316d3; color: white; }
+              td { background-color: #9cd1a4; }
+              h2 { text-align: center; }
+            </style>
+          </head>
+          <body>
+            <h2>नेपाल विधुत प्राधिकरण</h2>
+            <h2>धरान वितरण केन्द्र</h2>
+            <h2>33kv/11kv Trip & Shutdown Report</h2>
+            ${table.outerHTML}
+          </body>
+        </html>
+      `);
+      newWin.document.close();
+      newWin.print();
     }
   </script>
 </body>
