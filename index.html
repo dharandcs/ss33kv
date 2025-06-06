@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ne">
+<head>
+  <meta charset="UTF-8" />
+  <title>जानकारी</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background-color: #a7ccf7;
+      padding: 20px;
+      text-align: center;
+    }
+    img {
+      height: 120px;
+      margin-bottom: 10px;
+      border-radius: 59%;
+      border: 2px solid #c6d7e7;
+    }
+    h1 { color: #140aa3; }
+    h2 { color: #051b25; }
+    h3 { color: #f10d0d; margin-bottom: 20px; }
+    select, button {
+      padding: 8px 12px;
+      margin: 5px;
+      font-size: 16px;
+    }
+    .notice {
+      background-color: #75e958;
+      border: 1px solid #73f073;
+      padding: 8px;
+      margin-top: 18px;
+      font-size: 18px;
+      color: #1448b9;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 10px;
+    }
+    th {
+      background-color: #494be4;
+    }
+    td {
+      background-color: #9ce4a5;
+    }
+  </style>
+</head>
+<body>
+
+  <img src="ss.png" alt="ss Logo" />
+
+  <h1>नेपाल विधुत प्राधिकरण</h1>
+  <h2>धरान वितरण केन्द्र</h2>
+  <h3>फिडर Trip & Shutdown समयको बिवरण थाहा पाउनुहोस् !!!</h3>
+
+  <div>
+    <label for="line">लाइन:</label>
+    <select id="line" required>
+      <option value="">लाइन चयन गर्नुहोस्</option>
+      <option value="33kv">33kv</option>
+      <option value="11kv">11kv</option>
+    </select>
+
+    <label for="feeder">फिडर:</label>
+    <select id="feeder" required>
+      <option value="">फिडर चयन गर्नुहोस्</option>
+      <option value="Dharan Feeder">Dharan Feeder</option>
+      <option value="Panmara Feeder">Panmara Feeder</option>
+      <option value="Bpkish Feeder">Bpkish Feeder</option>
+      <option value="Bishnupaduka Feeder">Bishnupaduka Feeder</option>
+      <option value="Local Chatara Feeder">Local Chatara Feeder</option>
+      <option value="Bhanu Feeder">Bhanu Feeder</option>
+      <option value="Chatara Feeder">Chatara Feeder</option>
+      <option value="Relway Feeder">Relway Feeder</option>
+      <option value="Industrial Feeder">Industrial Feeder</option>
+      <option value="Chatara To Dharan Feeder33kv">Chatara To Dharan Feeder33kv</option>
+      <option value="Dhankuta To Dharan Feeder33kv">Dhankuta To Dharan Feeder33kv</option>
+      <option value="Duhabi To Dharan Feeder33kv">Duhabi To Dharan Feeder33kv</option>
+      <option value="Dharan To Chatara Feeder33kv">Dharan To Chatara Feeder33kv</option>
+      <option value="Dharan To Dhankuta Feeder33kv">Dharan To Dhankuta Feeder33kv</option>
+      <option value="Bagarkot Feeder">Bagarkot Feeder</option>
+      <option value="British Feeder">British Feeder</option>
+      <option value="Khanepani Feeder">Khanepani Feeder</option>
+      <option value="Other Feeder">Other Feeder</option>
+    </select>
+
+    <button onclick="searchData()">Search</button>
+  </div>
+
+  <div class="notice">
+    थप जानकारीको लागि सम्पर्क नम्बर: ९८५२०६२४२१ 
+  </div>
+
+  <table id="resultTable">
+    <thead>
+      <tr>
+        <th>लाईन</th>
+        <th>फिडर</th>
+        <th>फिडर Trip वा Shutdown समय</th>
+        <th>फिडर Restore समय</th>
+        <th>जम्मा आउटेज</th>
+        <th>आउटेजको कारण</th>
+        <th>मिति</th>
+        <th>कैफियत</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      <tr><td colspan="8">....</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    function extractTimeOnly(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (!isNaN(date)) {
+        date.setMinutes(date.getMinutes() - 20); // Subtract 20 minutes
+        return date.toLocaleTimeString("en-US", {
+          hour: 'numeric',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+      }
+      return value;
+    }
+
+    function extractDate(value) {
+      if (!value) return "";
+      const date = new Date(value);
+      if (!isNaN(date)) return date.toISOString().split("T")[0];
+      return value;
+    }
+
+    async function searchData() {
+      const line = document.getElementById("line").value.trim().toLowerCase();
+      const feeder = document.getElementById("feeder").value.trim().toLowerCase();
+      const tbody = document.getElementById("tableBody");
+      tbody.innerHTML = '';
+
+      if (!line || !feeder) {
+        alert("कृपया लाइन र फिडर दुवै चयन गर्नुहोस्।");
+        return;
+      }
+
+      try {
+        const response = await fetch("https://script.google.com/macros/s/AKfycbzk3Tf1mpHSaPqqDWLV5sgiHBBdIYtqyRijUPmdWugONaNn-D7j4sOBVR5q-JVwbTiTpw/exec");
+        const data = await response.json();
+
+        if (!Array.isArray(data)) {
+          tbody.innerHTML = '<tr><td colspan="8">डेटा लोड गर्न सकिएन।</td></tr>';
+          return;
+        }
+
+        const filtered = data.filter(row =>
+          row["लाईन"]?.toLowerCase() === line &&
+          row["फिडर"]?.toLowerCase() === feeder
+        );
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8">चयन गरिएको लाइन र फिडरको लागि कुनै आउटेज भेटिएन।</td></tr>';
+          return;
+        }
+
+        filtered.forEach(row => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row["लाईन"] || ""}</td>
+            <td>${row["फिडर"] || ""}</td>
+            <td>${extractTimeOnly(row["फिडर Trip वा Shutdown समय"])}</td>
+            <td>${extractTimeOnly(row["फिडर Restore समय"])}</td>
+            <td>${extractTimeOnly(row["जम्मा आउटेज"])}</td>
+            <td>${row["आउटेजको कारण"] || ""}</td>
+            <td>${extractDate(row["मिति"])}</td>
+            <td>${row["कैफियत"] || ""}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+
+      } catch (error) {
+        console.error("Error:", error);
+        tbody.innerHTML = '<tr><td colspan="8">त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।</td></tr>';
+      }
+    }
+  </script>
+
+</body>
+</html>
