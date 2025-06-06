@@ -10,64 +10,107 @@
       padding: 20px;
       text-align: center;
     }
+
     img {
       height: 120px;
       margin-bottom: 10px;
       border-radius: 59%;
       border: 2px solid #c6d7e7;
     }
+
     h1 { color: #140aa3; }
     h2 { color: #051b25; }
     h3 { color: #f10d0d; margin-bottom: 20px; }
-    select, button {
-      padding: 8px 12px;
+
+    label {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    select, input, button {
+      padding: 10px 16px;
       margin: 5px;
       font-size: 16px;
+      border: 1px solid #777;
+      border-radius: 6px;
+      transition: all 0.3s ease;
     }
+
+    select:hover, input:hover {
+      border-color: #333;
+      background-color: #eef6ff;
+    }
+
+    button {
+      background: linear-gradient(45deg, #0057b7, #00b4d8);
+      color: rgb(15, 14, 14);
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #2bfa23, hsl(133, 83%, 51%));
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+      transform: scale(1.05);
+    }
+
+    input[type="text"]#fromDate,
+    input[type="text"]#toDate {
+      width: 83px;
+      font-size: 14px;
+    }
+
     .notice {
-      background-color: #75e958;
-      border: 1px solid #73f073;
-      padding: 8px;
-      margin-top: 18px;
-      font-size: 18px;
-      color: #1448b9;
+      border-radius: 12cm;
+      padding: 3px;
+      margin-top: 10px;
+      font-size: 15px;
+      color: #e41b1b;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
+
     th, td {
-      border: 1px solid #999;
+      border: 1px solid #0b0c0c;
       padding: 10px;
     }
+
     th {
-      background-color: #494be4;
+      background-color: #1316d3;
+      color: rgb(239, 241, 239);
     }
+
     td {
-      background-color: #9ce4a5;
+      background-color: #9cd1a4;
     }
   </style>
 </head>
 <body>
 
   <img src="ss.png" alt="ss Logo" />
-
   <h1>नेपाल विधुत प्राधिकरण</h1>
   <h2>धरान वितरण केन्द्र</h2>
   <h3>फिडर Trip & Shutdown समयको बिवरण थाहा पाउनुहोस् !!!</h3>
 
   <div>
     <label for="line">लाइन:</label>
-    <select id="line" required>
-      <option value="">लाइन चयन गर्नुहोस्</option>
+    <select id="line">
+      <option value="all">ALL</option>
       <option value="33kv">33kv</option>
       <option value="11kv">11kv</option>
     </select>
 
     <label for="feeder">फिडर:</label>
-    <select id="feeder" required>
-      <option value="">फिडर चयन गर्नुहोस्</option>
+    <select id="feeder">
+      <option value="all">ALL</option>
       <option value="Dharan Feeder">Dharan Feeder</option>
       <option value="Panmara Feeder">Panmara Feeder</option>
       <option value="Bpkish Feeder">Bpkish Feeder</option>
@@ -88,11 +131,19 @@
       <option value="Other Feeder">Other Feeder</option>
     </select>
 
+    <br />
+
+    <label for="fromDate">देखि मिति:</label>
+    <input type="text" id="fromDate" placeholder="2082-02-01" />
+
+    <label for="toDate">सम्म मिति:</label>
+    <input type="text" id="toDate" placeholder="2082-02-13" />
+
     <button onclick="searchData()">Search</button>
   </div>
 
-  <div class="notice">
-    थप जानकारीको लागि सम्पर्क नम्बर: ९८५२०६२४२१ 
+  <div class="notice"><b>
+    थप जानकारीको लागि सम्पर्क नम्बर: ९८५२०६२४२१ </b>
   </div>
 
   <table id="resultTable">
@@ -118,7 +169,7 @@
       if (!value) return "";
       const date = new Date(value);
       if (!isNaN(date)) {
-        date.setMinutes(date.getMinutes() - 20); // Subtract 20 minutes
+        date.setMinutes(date.getMinutes() - 20);
         return date.toLocaleTimeString("en-US", {
           hour: 'numeric',
           minute: '2-digit',
@@ -129,40 +180,47 @@
       return value;
     }
 
-    function extractDate(value) {
-      if (!value) return "";
-      const date = new Date(value);
-      if (!isNaN(date)) return date.toISOString().split("T")[0];
-      return value;
+    function isDateInRange(dateStr, fromDateStr, toDateStr) {
+      if (!dateStr) return false;
+      if (!fromDateStr && !toDateStr) return true;
+
+      const d = dateStr.replaceAll("-", "");
+      const from = fromDateStr ? fromDateStr.replaceAll("-", "") : null;
+      const to = toDateStr ? toDateStr.replaceAll("-", "") : null;
+
+      if (from && to) return d >= from && d <= to;
+      if (from) return d >= from;
+      if (to) return d <= to;
+      return true;
     }
 
     async function searchData() {
       const line = document.getElementById("line").value.trim().toLowerCase();
       const feeder = document.getElementById("feeder").value.trim().toLowerCase();
+      const fromDate = document.getElementById("fromDate").value.trim();
+      const toDate = document.getElementById("toDate").value.trim();
       const tbody = document.getElementById("tableBody");
-      tbody.innerHTML = '';
-
-      if (!line || !feeder) {
-        alert("कृपया लाइन र फिडर दुवै चयन गर्नुहोस्।");
-        return;
-      }
+      tbody.innerHTML = "";
 
       try {
         const response = await fetch("https://script.google.com/macros/s/AKfycbzk3Tf1mpHSaPqqDWLV5sgiHBBdIYtqyRijUPmdWugONaNn-D7j4sOBVR5q-JVwbTiTpw/exec");
         const data = await response.json();
 
-        if (!Array.isArray(data)) {
-          tbody.innerHTML = '<tr><td colspan="8">डेटा लोड गर्न सकिएन।</td></tr>';
-          return;
-        }
-
-        const filtered = data.filter(row =>
-          row["लाईन"]?.toLowerCase() === line &&
-          row["फिडर"]?.toLowerCase() === feeder
-        );
+        const filtered = data.filter(row => {
+          const rowLine = (row["लाईन"] || "").toLowerCase();
+          const rowFeeder = (row["फिडर"] || "").toLowerCase();
+          const rowDate = (row["मिति"] || "").trim();
+          const lineMatch = (line === "all") || (rowLine === line);
+          const feederMatch = (feeder === "all") || (rowFeeder === feeder);
+          return (
+            lineMatch &&
+            feederMatch &&
+            isDateInRange(rowDate, fromDate, toDate)
+          );
+        });
 
         if (filtered.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="8">चयन गरिएको लाइन र फिडरको लागि कुनै आउटेज भेटिएन।</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8">चयन गरिएको मापदण्ड अनुसार कुनै डाटा फेला परेन।</td></tr>';
           return;
         }
 
@@ -175,18 +233,16 @@
             <td>${extractTimeOnly(row["फिडर Restore समय"])}</td>
             <td>${extractTimeOnly(row["जम्मा आउटेज"])}</td>
             <td>${row["आउटेजको कारण"] || ""}</td>
-            <td>${extractDate(row["मिति"])}</td>
+            <td>${row["मिति"] || ""}</td>
             <td>${row["कैफियत"] || ""}</td>
           `;
           tbody.appendChild(tr);
         });
-
-      } catch (error) {
-        console.error("Error:", error);
-        tbody.innerHTML = '<tr><td colspan="8">त्रुटि भयो। कृपया पछि प्रयास गर्नुहोस्।</td></tr>';
+      } catch (err) {
+        console.error("त्रुटि:", err);
+        tbody.innerHTML = '<tr><td colspan="8">डाटा लोड गर्न सकिएन। पछि प्रयास गर्नुहोस्।</td></tr>';
       }
     }
   </script>
-
 </body>
 </html>
