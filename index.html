@@ -83,12 +83,39 @@
     }
 
     th {
-      background-color: #1316d3;
+      background-color: #282cf3;
       color: rgb(239, 241, 239);
     }
 
     td {
       background-color: #9cd1a4;
+    }
+
+    /* Print signature styles */
+    .signature-section {
+      width: 100%;
+      margin-top: 40px;
+      display: flex;
+      justify-content: space-around;
+      font-family: 'Times New Roman', serif;
+      font-size: 16px;
+    }
+    .signature-block {
+      text-align: center;
+      min-width: 150px;
+    }
+    .signature-line {
+      border-bottom: 1px solid black;
+      width: 150px;
+      margin: 0 auto 6px auto;
+    }
+    .signature-name {
+      font-weight: bold;
+    }
+    .signature-title {
+      margin-top: 2px;
+      font-style: italic;
+      font-size: 14px;
     }
   </style>
 </head>
@@ -142,8 +169,8 @@
     <button onclick="printTable()">Print</button>
   </div>
 
-  <div class="notice"><b>
-    थप जानकारीको लागि सम्पर्क नम्बर: ९८५२०६२४२१ </b>
+  <div class="notice">
+    <b>थप जानकारीको लागि सम्पर्क नम्बर: ९८५२०६२४२१</b>
   </div>
 
   <table id="resultTable">
@@ -224,20 +251,44 @@
           return;
         }
 
+        let totalMinutes = 0;
+
         filtered.forEach(row => {
           const tr = document.createElement("tr");
+          const outage = row["जम्मा आउटेज"];
+          let outageDisplay = outage;
+
+          if (outage && outage.includes(":")) {
+            const [hh, mm] = outage.split(":").map(Number);
+            if (!isNaN(hh) && !isNaN(mm)) {
+              totalMinutes += hh * 60 + mm;
+            }
+          }
+
           tr.innerHTML = `
             <td>${row["लाईन"] || ""}</td>
             <td>${row["फिडर"] || ""}</td>
             <td>${extractTimeOnly(row["फिडर Trip वा Shutdown समय"])}</td>
             <td>${extractTimeOnly(row["फिडर Restore समय"])}</td>
-            <td>${extractTimeOnly(row["जम्मा आउटेज"])}</td>
+            <td>${outageDisplay || ""}</td>
             <td>${row["आउटेजको कारण"] || ""}</td>
             <td>${row["मिति"] || ""}</td>
             <td>${row["कैफियत"] || ""}</td>
           `;
           tbody.appendChild(tr);
         });
+
+        const totalHH = Math.floor(totalMinutes / 60);
+        const totalMM = totalMinutes % 60;
+
+        const totalRow = document.createElement("tr");
+        totalRow.innerHTML = `
+          <td colspan="4" style="text-align:right; font-weight:bold;">जम्मा आउटेज समय:</td>
+          <td style="font-weight:bold;">${String(totalHH).padStart(2, '0')}:${String(totalMM).padStart(2, '0')}</td>
+          <td colspan="3" style="font-weight:bold; color:#000066;">जम्मा विवरण संख्या ${filtered.length} वटा ।</td>
+        `;
+        tbody.appendChild(totalRow);
+
       } catch (err) {
         console.error("त्रुटि:", err);
         tbody.innerHTML = '<tr><td colspan="8">डाटा लोड गर्न सकिएन। पछि प्रयास गर्नुहोस्।</td></tr>';
@@ -257,6 +308,31 @@
               th { background-color: #1316d3; color: white; }
               td { background-color: #9cd1a4; }
               h2 { text-align: center; }
+              .signature-section {
+                width: 100%;
+                margin-top: 40px;
+                display: flex;
+                justify-content: space-around;
+                font-family: 'Times New Roman', serif;
+                font-size: 16px;
+              }
+              .signature-block {
+                text-align: center;
+                min-width: 150px;
+              }
+              .signature-line {
+                border-bottom: 1px solid black;
+                width: 150px;
+                margin: 0 auto 6px auto;
+              }
+              .signature-name {
+                font-weight: bold;
+              }
+              .signature-title {
+                margin-top: 2px;
+                font-style: italic;
+                font-size: 14px;
+              }
             </style>
           </head>
           <body>
@@ -264,6 +340,28 @@
             <h2>धरान वितरण केन्द्र</h2>
             <h2>33kv/11kv Trip & Shutdown Report</h2>
             ${table.outerHTML}
+            <div class="signature-section">
+              <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Suresh Kumar Yadav</div>
+                <div class="signature-title">(Data Entry)</div>
+              </div>
+              <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Fanindra Kumar Acharya</div>
+                <div class="signature-title">(S/S Incharge)</div>
+              </div>
+              <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">MaheshRaj Dahal</div>
+                <div class="signature-title">(Checked By)</div>
+              </div>
+              <div class="signature-block">
+                <div class="signature-line"></div>
+                <div class="signature-name">Pradip Kumar Sharma</div>
+                <div class="signature-title">(Approve By)</div>
+              </div>
+            </div>
           </body>
         </html>
       `);
