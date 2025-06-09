@@ -53,7 +53,7 @@
     input[type="text"]#fromDate,
     input[type="text"]#toDate {
       width: 83px;
-      font-size: 14px;
+      font-size: 13px;
     }
     .notice {
       border-radius: 12cm;
@@ -88,7 +88,7 @@
   <h3>फिडर Trip & Shutdown समयको बिवरण थाहा पाउनुहोस् !!!</h3>
 
   <div>
-    <label for="line">लाइन:</label>
+    <label for="line">लाईन:</label>
     <select id="line">
       <option value="all">ALL</option>
       <option value="33kv">33kv</option>
@@ -120,9 +120,9 @@
 
     <br />
     <label for="fromDate">देखि मिति:</label>
-    <input type="text" id="fromDate" placeholder="2082-02-01" />
+    <input type="text" id="fromDate" placeholder="YYYY-MM-DD" />
     <label for="toDate">सम्म मिति:</label>
-    <input type="text" id="toDate" placeholder="2082-02-13" />
+    <input type="text" id="toDate" placeholder="YYYY-MM-DD" />
 
     <button onclick="searchData()">Search</button>
     <button onclick="printTable()">Print</button>
@@ -166,15 +166,29 @@
     return value;
   }
 
+  // Normalize date string: replace . and / with -, then convert to YYYYMMDD string for comparison
+  function normalizeDate(dateStr) {
+    if (!dateStr) return null;
+    // Replace ".", "/" with "-"
+    const cleaned = dateStr.replace(/[./]/g, "-").trim();
+    const parts = cleaned.split("-");
+    if (parts.length !== 3) return null;
+    let [y, m, d] = parts;
+    // Pad month and day with leading zero if needed
+    m = m.padStart(2, '0');
+    d = d.padStart(2, '0');
+    return y + m + d;
+  }
+
   function isDateInRange(dateStr, fromDateStr, toDateStr) {
-    if (!dateStr) return false;
-    if (!fromDateStr && !toDateStr) return true;
-    const d = dateStr.replaceAll("-", "");
-    const from = fromDateStr ? fromDateStr.replaceAll("-", "") : null;
-    const to = toDateStr ? toDateStr.replaceAll("-", "") : null;
-    if (from && to) return d >= from && d <= to;
-    if (from) return d >= from;
-    if (to) return d <= to;
+    const date = normalizeDate(dateStr);
+    const from = normalizeDate(fromDateStr);
+    const to = normalizeDate(toDateStr);
+    if (!date) return false;
+    if (!from && !to) return true;
+    if (from && to) return date >= from && date <= to;
+    if (from) return date >= from;
+    if (to) return date <= to;
     return true;
   }
 
