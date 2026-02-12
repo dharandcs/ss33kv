@@ -8,7 +8,7 @@
 <style>
 html, body{height:100%; margin:0; font-family:Arial, Helvetica, sans-serif;}
 body{display:flex; flex-direction:column; background:url('ssbackgraund.png') no-repeat center center fixed; background-size:cover;}
-header{display:flex; align-items:center; gap:12px; padding:10px 15px; background:rgba(255,255,255,0.95);}
+header{display:flex; align-items:center; gap:12px; padding:10px 15px; background:rgba(174, 189, 216, 0.95);}
 header img{height:90px}
 .header-text{flex:1;}
 header h1 { 
@@ -38,7 +38,7 @@ input, select, textarea{width:100%; padding:10px; margin-bottom:10px; font-size:
 input[readonly]{background:#eee; cursor:not-allowed;}
 .success-msg{color:green; font-weight:bold; margin-top:10px;}
 .error-msg{color:red; font-weight:bold; margin-top:10px;}
-footer{background:#0b2a4a; color:#fff; text-align:center; padding:16px;}
+footer{background:#0e11bd; color:#fff; text-align:center; padding:16px;}
 #editSection{display:none;}
 @media(max-width:600px){
   header h1, header h2, header h3{font-size:16px;}
@@ -83,11 +83,11 @@ select,input,button { padding: 10px 16px; margin: 5px; font-size: 16px; border: 
 select:hover,input:hover { border-color: #333; background-color: #eef6ff; }
 button { background: linear-gradient(45deg, #0057b7, #00b4d8); color: rgb(15,14,14); font-weight: bold; cursor: pointer; border: none; border-radius: 6px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 button:hover { background: linear-gradient(45deg, #2bfa23, hsl(133, 83%, 51%)); box-shadow: 0 6px 12px rgba(0,0,0,0.3); transform: scale(1.05); }
-input[type="text"]#fromDate,input[type="text"]#toDate { width: 83px; font-size: 13px; }
+input[type="text"]#fromDate,input[type="text"]#toDate { width: 118px; font-size: 13px; }
 .notice { border-radius: 12cm; padding: 3px; margin-top: 10px; font-size: 15px; color: #e41b1b; }
 table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; word-wrap: break-word; }
 th,td { border: 1px solid #0b0c0c; padding: 10px; }
-th { background-color: #282cf3; color: rgb(239,241,239); font-size: 14px; }
+th { background-color: #282cf3; color: rgb(237, 241, 237); font-size: 14px; }
 td { background-color: #9cd1a4; font-size: 13px; }
 </style>
 </head>
@@ -441,7 +441,7 @@ async function searchReport(){
 
   // ✅ Date validation: must fill at least one
   if(fromDate === "" && toDate === ""){
-    tbody.innerHTML='<tr><td colspan="9" style="color:red; font-weight:bold;">⚠ कृपया आफूलाई चाहिएको मिति चयन गर्नुहोस् !!!</td></tr>';
+    tbody.innerHTML='<tr><td colspan="9" style="color:red; font-weight:bold;">⚠ कृपया आफूलाई चाहिएको Data मिति राखि Search गर्नुहोस् !!!</td></tr>';
     return;
   }
 
@@ -511,7 +511,7 @@ function printTable() {
 
   // ✅ Date validation before printing
   if(fromDate === "" && toDate === ""){
-    alert("⚠ Print गर्नकाे लागि कृपया आफूलाई चाहिएको मिति चयन गर्नुहोस् !!!");
+    alert("⚠ Print गर्नकाे लागि कृपया आफूलाई चाहिएको मिति राखि Data Search  गर्नुहोस् !!!");
     return;
   }
 
