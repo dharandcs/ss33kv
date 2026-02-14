@@ -323,65 +323,125 @@ function submitData(){
 }
 
 /* SEARCH for Re-Update (YYYY.MM.DD only) */
-let editRow=null;
-function searchData(){
+let editRows = [];  // अब multiple rows राख्न
+let currentEditIndex = null;
+
+function searchData() {
   const headers=["लाईन","फिडर","मिति","Security Code"];
   const values=[uline.value,ufeeder.value,udate.value,upwd.value];
   for(let i=0;i<headers.length;i++){
     if(!values[i]){
       updateMsg.textContent=`⚠ ${headers[i]} Fill खाली छ कृपया Fill भर्नुहोस् !!!`;
-      updateMsg.className="error-msg"; return;
+      updateMsg.className="error-msg"; 
+      return;
     }
   }
   if(!/^\d{4}\.\d{2}\.\d{2}$/.test(udate.value)){
     updateMsg.textContent="⚠ मिति format गलत छ! केवल YYYY.MM.DD अनुमति छ।";
-    updateMsg.className="error-msg"; return;
+    updateMsg.className="error-msg"; 
+    return;
   }
   if(!isValidSecurity(upwd.value)){
     updateMsg.textContent="⚠ Invalid Security Code !!!";
-    updateMsg.className="error-msg"; return;
+    updateMsg.className="error-msg"; 
+    return;
   }
 
   fetch(`${WEB_APP_URL}?line=${uline.value}&feeder=${ufeeder.value}&date=${udate.value}`)
-  .then(r=>r.json())
-  .then(d=>{
+  .then(r => r.json())
+  .then(d => {
     if(!d.length){
       updateMsg.textContent="⚠ Data Not Found";
       updateMsg.className="error-msg";
-      document.getElementById("editSection").style.display="none"; return;
+      document.getElementById("editSection").style.display="none"; 
+      return;
     }
-    editRow=d[0];
-    utrip.value=editRow.trip;
-    urestore.value=editRow.restore;
-    uoutage.value=String(editRow.outage).slice(0,5);
-    ureason.value=editRow.reason;
-    utod.value=editRow.tod;
-    uremark.value=editRow.remark;
-    document.getElementById("editSection").style.display="block";
-    updateMsg.textContent="✔ Data Loaded";
+
+    // Clear previous list
+    const editListDiv = document.getElementById("editListDiv");
+    if(!editListDiv){
+      const div = document.createElement("div");
+      div.id = "editListDiv";
+      div.style.marginTop = "10px";
+      document.getElementById("update").appendChild(div);
+    }
+    document.getElementById("editListDiv").innerHTML = "";
+
+    editRows = d;  // Save all rows
+   d.forEach((row, index) => {
+  const btn = document.createElement("button");
+  // format Trip & Restore times
+  const tripTime = formatTime12(row.trip);
+  const restoreTime = formatTime12(row.restore);
+  btn.textContent = `Click & Edit ${index+1} | Trip: ${tripTime || "??"} | Restore: ${restoreTime || "??"}`;
+  btn.style.margin = "3px";
+  btn.onclick = () => loadEditRow(index);
+  document.getElementById("editListDiv").appendChild(btn);
+});
+
+    document.getElementById("editSection").style.display="none";
+    updateMsg.textContent=`✔ ${d.length} वटा तपाईले Time List भेटियकाे छ:तपाईले Search गर्नु भयकाे सम्बन्धीत फिडर र सम्बन्धीत  मितिकाे समयकाे List तल देखाईएकाे छ। आफुले Edit गर्न चाहेकाे सम्बन्धीत समयमा Click गरी Data  Edit गर्नसक्नुहुनेछ!!!.`;
     updateMsg.className="success-msg";
   });
 }
 
+function loadEditRow(index){
+  currentEditIndex = index;
+  const row = editRows[index];
+
+  // Show edit section
+  const editSection = document.getElementById("editSection");
+  editSection.style.display = "block";
+
+  // Clear previous labels if any
+  editSection.querySelectorAll("label").forEach(l => l.remove());
+
+  // Add header labels above each input
+  utrip.insertAdjacentHTML("beforebegin", `<label>फिडर Trip वा Shutdown समय</label>`);
+  urestore.insertAdjacentHTML("beforebegin", `<label>फिडर Restore समय</label>`);
+  uoutage.insertAdjacentHTML("beforebegin", `<label>जम्मा आउटेज</label>`);
+  ureason.insertAdjacentHTML("beforebegin", `<label>आउटेजको कारण</label>`);
+  utod.insertAdjacentHTML("beforebegin", `<label>TOD Reading</label>`);
+  uremark.insertAdjacentHTML("beforebegin", `<label>कैफियत</label>`);
+
+  // Fill input fields (Outage remains empty)
+  utrip.value = formatTime12(row.trip) || "";
+  urestore.value = formatTime12(row.restore) || "";
+  uoutage.value = "";  // खाली
+  ureason.value = row.reason || "";
+  utod.value = row.tod || "";
+  uremark.value = row.remark || "";
+}
+
+
 /* UPDATE */
 function updateData(){
+  if(currentEditIndex===null) return;
+  const row = editRows[currentEditIndex];
+
   fetch(WEB_APP_URL,{
     method:"POST",
     body:JSON.stringify({
-      rowIndex:editRow.rowIndex,
-      line:uline.value,feeder:ufeeder.value,
-      trip:utrip.value,restore:urestore.value,
-      outage:uoutage.value,reason:ureason.value,
-      tod:utod.value,date:udate.value,remark:uremark.value
+      rowIndex: row.rowIndex,
+      line:uline.value,
+      feeder:ufeeder.value,
+      trip:utrip.value,
+      restore:urestore.value,
+      outage:uoutage.value,
+      reason:ureason.value,
+      tod:utod.value,
+      date:udate.value,
+      remark:uremark.value
     })
   }).then(()=>{
     updateMsg.textContent="✔ Updated Successfully";
     updateMsg.className="success-msg";
     document.querySelectorAll('#editSection input,#editSection textarea').forEach(e=>e.value="");
     document.getElementById("editSection").style.display="none";
-    editRow=null;
+    currentEditIndex=null;
   });
 }
+
 
 /* REPORT SEARCH */
 function normalizeDate(dateStr){
@@ -598,3 +658,4 @@ function downloadExcel() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
+
