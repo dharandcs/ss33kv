@@ -14,18 +14,18 @@ header img{height:90px}
 header h1 { 
     margin: 0; 
     font-size: 36px;
-    font-family: 'Times New Roman', Times, serif;   /* Nepal Electricity Authority */
+    font-family: 'Times New Roman', Times, serif;
 }
 
 header h2 { 
     margin: 2px 0; 
     font-size: 26px; 
-    font-family: 'Times New Roman', Times, serif;  /* Dharan Dcs Substation 33Kv/11Kv */
+    font-family: 'Times New Roman', Times, serif;
 }
 
 header h3 { 
     margin: 4px 0 0 0; 
-    font-size: 16px;    /* Tripping & Shutdown Data Entry System */
+    font-size: 16px;
     text-align: center;
     font-family: 'Times New Roman', Times, serif;
 }
@@ -56,7 +56,7 @@ img.report-img {
 
 h1, h2, h3 { 
     margin: 0; 
-    text-align: center; /* center all headers */
+    text-align: center;
 }
 
 h1 { 
@@ -74,7 +74,7 @@ h2 {
 h3 { 
     color: red; 
     font-size: 15px; 
-    margin-bottom: 20px; /* optional spacing below h3 */
+    margin-bottom: 20px;
     font-family: 'Times New Roman', Times, serif
 }
 
@@ -89,6 +89,21 @@ table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: 
 th,td { border: 1px solid #0b0c0c; padding: 10px; }
 th { background-color: #282cf3; color: rgb(237, 241, 237); font-size: 14px; }
 td { background-color: #9cd1a4; font-size: 13px; }
+
+/* ── नयाँ थपिएको: Summary table style ── */
+#summarySection { display:none; margin-top:18px; }
+#summarySection table th { background-color: #8b0000; color:#fff; font-size:14px; }
+#summarySection table td { background-color: #ffe5b4; font-size:13px; }
+#summarySection .sum-header {
+  background: linear-gradient(90deg,#003087,#1565c0);
+  color:#fff;
+  padding:10px 18px;
+  border-radius:8px;
+  font-family:'Times New Roman',serif;
+  font-size:16px;
+  margin-bottom:8px;
+  display:inline-block;
+}
 </style>
 </head>
 
@@ -219,6 +234,14 @@ td { background-color: #9cd1a4; font-size: 13px; }
     <button onclick="searchReport()">Search</button>
     <button onclick="printTable()">Print</button>
     <button onclick="downloadExcel()">Report Download Excel</button>
+
+    <!-- ══ नयाँ थपिएको Filter Data dropdown ══ -->
+    <select id="filterDataSelect" onchange="applyFilterData()" style="width:auto; display:inline-block; font-size:15px; padding:8px 14px; margin:5px;">
+      <option value="all">Filter Data ▾</option>
+      <option value="all">All Data</option>
+      <option value="summary">Summary Data</option>
+    </select>
+    <!-- ══════════════════════════════════════ -->
   </div>
 
   <div class="notice">
@@ -243,6 +266,25 @@ td { background-color: #9cd1a4; font-size: 13px; }
       <tr><td colspan="9">....</td></tr>
     </tbody>
   </table>
+
+  <!-- ══ नयाँ थपिएको: Summary Section ══ -->
+  <div id="summarySection">
+    <div class="sum-header" id="sumHeader"></div>
+    <table id="summaryTable">
+      <thead>
+        <tr>
+          <th>क्र.सं.</th>
+          <th>लाईन</th>
+          <th>फिडर</th>
+          <th>जम्मा Trip/Shutdown संख्या</th>
+          <th>जम्मा आउटेज समय (HH:MM)</th>
+        </tr>
+      </thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+  </div>
+  <!-- ════════════════════════════════ -->
+
 </div>
 
 </div>
@@ -323,7 +365,7 @@ function submitData(){
 }
 
 /* SEARCH for Re-Update (YYYY.MM.DD only) */
-let editRows = [];  // अब multiple rows राख्न
+let editRows = [];
 let currentEditIndex = null;
 
 function searchData() {
@@ -357,7 +399,6 @@ function searchData() {
       return;
     }
 
-    // Clear previous list
     const editListDiv = document.getElementById("editListDiv");
     if(!editListDiv){
       const div = document.createElement("div");
@@ -367,10 +408,9 @@ function searchData() {
     }
     document.getElementById("editListDiv").innerHTML = "";
 
-    editRows = d;  // Save all rows
+    editRows = d;
    d.forEach((row, index) => {
   const btn = document.createElement("button");
-  // format Trip & Restore times
   const tripTime = formatTime12(row.trip);
   const restoreTime = formatTime12(row.restore);
   btn.textContent = `Click & Edit ${index+1} | Trip: ${tripTime || "??"} | Restore: ${restoreTime || "??"}`;
@@ -389,14 +429,11 @@ function loadEditRow(index){
   currentEditIndex = index;
   const row = editRows[index];
 
-  // Show edit section
   const editSection = document.getElementById("editSection");
   editSection.style.display = "block";
 
-  // Clear previous labels if any
   editSection.querySelectorAll("label").forEach(l => l.remove());
 
-  // Add header labels above each input
   utrip.insertAdjacentHTML("beforebegin", `<label>फिडर Trip वा Shutdown समय</label>`);
   urestore.insertAdjacentHTML("beforebegin", `<label>फिडर Restore समय</label>`);
   uoutage.insertAdjacentHTML("beforebegin", `<label>जम्मा आउटेज</label>`);
@@ -404,10 +441,9 @@ function loadEditRow(index){
   utod.insertAdjacentHTML("beforebegin", `<label>TOD Reading</label>`);
   uremark.insertAdjacentHTML("beforebegin", `<label>कैफियत</label>`);
 
-  // Fill input fields (Outage remains empty)
   utrip.value = formatTime12(row.trip) || "";
   urestore.value = formatTime12(row.restore) || "";
-  uoutage.value = "";  // खाली
+  uoutage.value = "";
   ureason.value = row.reason || "";
   utod.value = row.tod || "";
   uremark.value = row.remark || "";
@@ -491,6 +527,11 @@ function formatOutageHHMM(value){
   return value;
 }
 
+// ── filtered rows globally store गर्न ──
+let _lastFilteredRows = [];
+let _lastFromDate = "";
+let _lastToDate = "";
+
 async function searchReport(){
   const line=document.getElementById("rline").value.trim().toLowerCase();
   const feeder=document.getElementById("rfeeder").value.trim().toLowerCase();
@@ -499,7 +540,10 @@ async function searchReport(){
   const tbody=document.getElementById("tableBody");
   tbody.innerHTML="";
 
-  // ✅ Date validation: must fill at least one
+  // ── Summary section लुकाउने ──
+  document.getElementById("summarySection").style.display="none";
+  document.getElementById("filterDataSelect").value="all";
+
   if(fromDate === "" && toDate === ""){
     tbody.innerHTML='<tr><td colspan="9" style="color:red; font-weight:bold;">⚠ कृपया आफूलाई चाहिएको Data मिति राखि Search गर्नुहोस् !!!</td></tr>';
     return;
@@ -517,6 +561,11 @@ async function searchReport(){
       const feederMatch=feeder==="all"||rowFeeder===feeder;
       return lineMatch && feederMatch && isDateInRange(rowDate,fromDate,toDate);
     });
+
+    // ── global store ──
+    _lastFilteredRows = filtered;
+    _lastFromDate = fromDate;
+    _lastToDate = toDate;
 
     if(filtered.length===0){
       tbody.innerHTML='<tr><td colspan="9">कुनै डाटा फेला परेन !!!</td></tr>';
@@ -564,18 +613,123 @@ async function searchReport(){
 }
 
 
+/* ══════════════════════════════════════════════════════
+   नयाँ थपिएको: Filter Data (All Data / Summary Data)
+   ══════════════════════════════════════════════════════ */
+function applyFilterData(){
+  const val = document.getElementById("filterDataSelect").value;
+  const summarySection = document.getElementById("summarySection");
+
+  if(val !== "summary"){
+    // All Data — summary लुकाउने, main table देखाउने
+    summarySection.style.display = "none";
+    document.getElementById("resultTable").style.display = "table";
+    return;
+  }
+
+  // Summary Data — feeder-wise sum बनाउने
+  if(_lastFilteredRows.length === 0){
+    alert("⚠ पहिला मिति राखि Search गर्नुहोस् !!!");
+    document.getElementById("filterDataSelect").value = "all";
+    return;
+  }
+
+  // Feeder key = "लाईन|फिडर"
+  const map = {};
+  _lastFilteredRows.forEach(row => {
+    const lineVal = row["लाईन"] || "";
+    const feederVal = row["फिडर"] || "";
+    const key = lineVal + "|" + feederVal;
+    if(!map[key]) map[key] = { line: lineVal, feeder: feederVal, count: 0, totalMin: 0 };
+    map[key].count++;
+    let outage = row["जम्मा आउटेज"] || "";
+    if(outage){
+      outage = formatOutageHHMM(outage);
+      const parts = outage.split(":");
+      const hh = parseInt(parts[0]);
+      const mm = parseInt(parts[1]);
+      if(!isNaN(hh) && !isNaN(mm)) map[key].totalMin += hh * 60 + mm;
+    }
+  });
+
+  // Header मिति range
+  const fromLabel = _lastFromDate || "—";
+  const toLabel = _lastToDate || "—";
+  document.getElementById("sumHeader").textContent =
+    `📋 Summary Report | मिति: ${fromLabel} देखि ${toLabel} सम्म`;
+
+  // Summary table populate गर्ने
+  const sb = document.getElementById("summaryBody");
+  sb.innerHTML = "";
+  let grandMin = 0;
+  let sn = 1;
+  Object.values(map).forEach(item => {
+    const hh = Math.floor(item.totalMin / 60);
+    const mm = item.totalMin % 60;
+    grandMin += item.totalMin;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${sn++}</td>
+      <td>${item.line}</td>
+      <td>${item.feeder}</td>
+      <td style="text-align:center; font-weight:bold;">${item.count} पटक</td>
+      <td style="text-align:center; font-weight:bold;">${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}</td>`;
+    sb.appendChild(tr);
+  });
+
+  // Grand total row
+  const gHH = Math.floor(grandMin / 60);
+  const gMM = grandMin % 60;
+  const totalKeys = Object.keys(map).length;
+  const grandTr = document.createElement("tr");
+  grandTr.style.background = "#8b0000";
+  grandTr.style.color = "#000";
+  grandTr.style.fontWeight = "bold";
+grandTr.innerHTML = `
+<td colspan="3" style="text-align:right; color:#000; font-weight:bold; font-size:15px;">
+    जम्मा (${totalKeys} फिडर):
+</td>
+<td style="text-align:center; color:#000; font-weight:bold; font-size:15px;">
+    ${_lastFilteredRows.length} पटक
+</td>
+<td style="text-align:center; color:#000; font-weight:bold; font-size:15px;">
+    ${String(gHH).padStart(2,'0')}:${String(gMM).padStart(2,'0')}
+</td>`;
+  sb.appendChild(grandTr);
+
+  // Main table लुकाउने, summary देखाउने
+  document.getElementById("resultTable").style.display = "none";
+  summarySection.style.display = "block";
+}
+/* ══════════════════════════════════════════════════════ */
+
 
 function printTable() {
   const fromDate = document.getElementById("fromDate").value.trim();
   const toDate = document.getElementById("toDate").value.trim();
 
-  // ✅ Date validation before printing
   if(fromDate === "" && toDate === ""){
     alert("⚠ Print गर्नकाे लागि कृपया आफूलाई चाहिएको मिति राखि Data Search  गर्नुहोस् !!!");
     return;
   }
 
-  const table = document.getElementById("resultTable");
+  // Summary mode मा छ भने summary print
+  const filterVal = document.getElementById("filterDataSelect").value;
+  let tableEl;
+  if(filterVal === "summary" && document.getElementById("summarySection").style.display !== "none"){
+    tableEl = document.getElementById("summaryTable");
+  } else {
+    tableEl = document.getElementById("resultTable");
+  }
+let reportDateRange = "";
+if(filterVal === "summary"){
+  reportDateRange = `
+    <h3 style="text-align:center;">
+      Summary Report Date :
+      ${_lastFromDate} देखि ${_lastToDate} सम्म
+    </h3>`;
+}
+
   const newWin = window.open("");
   newWin.document.write(`
     <html>
@@ -583,7 +737,18 @@ function printTable() {
         <title>Print Report</title>
         <style>
           table { width: 100%; border-collapse: collapse; font-family: 'Times New Roman'; }
-          th, td { border: 1px solid black; padding: 8px; text-align: left; }
+          th, td {
+  border: 1px solid black;
+  padding: 8px;
+}
+
+th{
+  text-align:center;
+}
+
+td{
+  text-align:left;
+}
           th { background-color: #1316d3; color: white; }
           td { background-color: #9cd1a4; }
           h2 { text-align: center; }
@@ -599,13 +764,26 @@ function printTable() {
           .signature-line { border-bottom: 1px solid black; width: 175px; margin: 0 auto 6px auto; }
           .signature-name { font-weight: bold; }
           .signature-title { margin-top: 2px; font-style: italic; font-size: 14px; }
+h2{
+  text-align:center;
+  margin:2px 0;
+  line-height:1.1;
+}
+
+h3{
+  text-align:center;
+  margin:3px 0 8px 0;
+  line-height:1.1;
+}
+
         </style>
       </head>
       <body>
-        <h2>नेपाल विधुत प्राधिकरण</h2>
-        <h2>धरान वितरण केन्द्र</h2>
-        <h2>33kv/11kv Trip & Shutdown Report</h2>
-        ${table.outerHTML}
+        <h2 style="margin:2px 0;">नेपाल विधुत प्राधिकरण</h2>
+        <h2 style="margin:2px 0;">धरान वितरण केन्द्र</h2>
+        <h2 style="margin:2px 0 6px 0;">33kv/11kv Trip & Shutdown Report</h2>
+${reportDateRange}
+${tableEl.outerHTML}
         <div class="signature-section">
           <div class="signature-block">
             <div class="signature-line"></div>
@@ -665,4 +843,3 @@ function downloadExcel() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
-
