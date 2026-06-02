@@ -45,7 +45,7 @@ footer{background:#0e11bd; color:#fff; text-align:center; padding:16px;}
   nav{flex-direction:column;}
 }
 
-/* Report styles */
+
 body.report { background-color: #a7ccf7; padding: 20px; text-align: center; }
 img.report-img { 
     height: 85px; 
@@ -90,7 +90,7 @@ th,td { border: 1px solid #0b0c0c; padding: 10px; }
 th { background-color: #282cf3; color: rgb(237, 241, 237); font-size: 14px; }
 td { background-color: #9cd1a4; font-size: 13px; }
 
-/* ── नयाँ थपिएको: Summary table style ── */
+
 #summarySection { display:none; margin-top:18px; }
 #summarySection table th { background-color: #8b0000; color:#fff; font-size:14px; }
 #summarySection table td { background-color: #ffe5b4; font-size:13px; }
@@ -109,7 +109,6 @@ td { background-color: #9cd1a4; font-size: 13px; }
 
 <body>
 
-<!-- HEADER -->
 <header>
   <img src="sslogo.png">
   <div class="header-text">
@@ -119,7 +118,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
   </div>
 </header>
 
-<!-- NAVIGATION -->
+
 <nav>
   <button onclick="showSection()">Home</button>
   <button onclick="showSection('entry')">Data Entry</button>
@@ -129,7 +128,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
 
 <div class="main">
 
-<!-- DATA ENTRY -->
+
 <div class="container" id="entry">
   <h3>Data Entry</h3>
   <select id="line" onchange="loadFeeder('feeder')">
@@ -155,7 +154,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
   <div id="msg"></div>
 </div>
 
-<!-- UPDATE -->
+
 <div class="container" id="update">
   <h3>Re-Update</h3>
   <select id="uline" onchange="loadFeeder('ufeeder')">
@@ -174,7 +173,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
 
   <div id="updateMsg"></div>
 
-  <!-- EDIT SECTION -->
+  
   <div id="editSection">
     <h4>Edit Data</h4>
     <input type="time" id="utrip">
@@ -187,7 +186,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
   </div>
 </div>
 
-<!-- REPORT -->
+
 <div class="container report" id="report">
   
   <h1>नेपाल विधुत प्राधिकरण</h1>
@@ -235,13 +234,13 @@ td { background-color: #9cd1a4; font-size: 13px; }
     <button onclick="printTable()">Print</button>
     <button onclick="downloadExcel()">Report Download Excel</button>
 
-    <!-- ══ नयाँ थपिएको Filter Data dropdown ══ -->
+    
     <select id="filterDataSelect" onchange="applyFilterData()" style="width:auto; display:inline-block; font-size:15px; padding:8px 14px; margin:5px;">
       <option value="all">Filter Data ▾</option>
-      <option value="all">All Data</option>
-      <option value="summary">Summary Data</option>
+      <option value="all">Daywise All Report</option>
+      <option value="summary">Summary Report</option>
     </select>
-    <!-- ══════════════════════════════════════ -->
+    
   </div>
 
   <div class="notice">
@@ -267,7 +266,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
     </tbody>
   </table>
 
-  <!-- ══ नयाँ थपिएको: Summary Section ══ -->
+  
   <div id="summarySection">
     <div class="sum-header" id="sumHeader"></div>
     <table id="summaryTable">
@@ -283,7 +282,7 @@ td { background-color: #9cd1a4; font-size: 13px; }
       <tbody id="summaryBody"></tbody>
     </table>
   </div>
-  <!-- ════════════════════════════════ -->
+  
 
 </div>
 
@@ -303,7 +302,7 @@ function showSection(id){
 }
 showSection();
 
-/* FEEDER */
+
 function loadFeeder(t){
   const s=document.getElementById(t);
   s.innerHTML='<option value="">फिडर छान्नुहोस्</option>';
@@ -314,7 +313,7 @@ function loadFeeder(t){
   f.forEach(x=>{ let o=document.createElement("option"); o.value=o.textContent=x; s.appendChild(o); });
 }
 
-/* OUTAGE */
+
 function diff(t1,t2){
   let d=(new Date("1970-01-01T"+t2)-new Date("1970-01-01T"+t1))/60000;
   if(d<0)d+=1440;
@@ -327,7 +326,7 @@ function calcUpdateOutage(){ if(utrip.value && urestore.value) uoutage.value=dif
 function isValidEntryDate(dateStr){ return /^\d{4}\.\d{2}\.\d{2}$/.test(dateStr); }
 function isValidSecurity(code){ return code==="Dharan/ss"; }
 
-/* SUBMIT */
+
 function submitData(){
   const headers=["लाईन","फिडर","मिति","Security Code"];
   const values=[line.value,feeder.value,date.value,security.value];
@@ -364,7 +363,7 @@ function submitData(){
   });
 }
 
-/* SEARCH for Re-Update (YYYY.MM.DD only) */
+
 let editRows = [];
 let currentEditIndex = null;
 
@@ -450,7 +449,7 @@ function loadEditRow(index){
 }
 
 
-/* UPDATE */
+
 function updateData(){
   if(currentEditIndex===null) return;
   const row = editRows[currentEditIndex];
@@ -479,7 +478,7 @@ function updateData(){
 }
 
 
-/* REPORT SEARCH */
+
 function normalizeDate(dateStr){
   if(!dateStr) return null;
   const cleaned = dateStr.replace(/[./]/g,"-").trim();
@@ -527,7 +526,7 @@ function formatOutageHHMM(value){
   return value;
 }
 
-// ── filtered rows globally store गर्न ──
+
 let _lastFilteredRows = [];
 let _lastFromDate = "";
 let _lastToDate = "";
@@ -540,7 +539,7 @@ async function searchReport(){
   const tbody=document.getElementById("tableBody");
   tbody.innerHTML="";
 
-  // ── Summary section लुकाउने ──
+  
   document.getElementById("summarySection").style.display="none";
   document.getElementById("filterDataSelect").value="all";
 
@@ -553,6 +552,43 @@ async function searchReport(){
     const res=await fetch(DATA_URL);
     const data=await res.json();
 
+    
+const allDates = data
+  .map(r => normalizeDate(r["मिति"] || ""))
+  .filter(d => d);
+
+allDates.sort();
+
+const firstDate = allDates[0];
+const lastDate  = allDates[allDates.length - 1];
+
+const userFrom = normalizeDate(fromDate);
+const userTo   = normalizeDate(toDate);
+
+
+if(userFrom && userFrom < firstDate){
+  alert(
+    "⚠ तपाईले राख्नुभएको सुरु मिति (देखि मिति:) Database मा उपलब्ध छैन ।\n\n" +
+    "डाटा इन्ट्री सुरु मिति (देखि मिति) : " +
+    firstDate.substring(0,4)+"."+
+    firstDate.substring(4,6)+"."+
+    firstDate.substring(6,8)
+  );
+  return;
+}
+
+
+if(userTo && userTo > lastDate){
+  alert(
+    "⚠ तपाईले राख्नुभएको अन्तिम मिति (सम्म मिति:) Database मा उपलब्ध छैन ।\n\n" +
+    "हालको (सम्म मिति:) अन्तिम  डाटा मिति : " +
+    lastDate.substring(0,4)+"."+
+    lastDate.substring(4,6)+"."+
+    lastDate.substring(6,8)
+  );
+  return;
+}
+
     const filtered=data.filter(row=>{
       const rowLine=(row["लाईन"]||"").toLowerCase();
       const rowFeeder=(row["फिडर"]||"").toLowerCase();
@@ -562,7 +598,22 @@ async function searchReport(){
       return lineMatch && feederMatch && isDateInRange(rowDate,fromDate,toDate);
     });
 
-    // ── global store ──
+    
+filtered.sort((a, b) => {
+  const dateA = normalizeDate(a["मिति"] || "");
+  const dateB = normalizeDate(b["मिति"] || "");
+
+  if (dateA < dateB) return -1;
+  if (dateA > dateB) return 1;
+
+  
+  const tripA = a["फिडर Trip वा Shutdown समय"] || "";
+  const tripB = b["फिडर Trip वा Shutdown समय"] || "";
+
+  return tripA.localeCompare(tripB);
+});
+
+    
     _lastFilteredRows = filtered;
     _lastFromDate = fromDate;
     _lastToDate = toDate;
@@ -613,28 +664,26 @@ async function searchReport(){
 }
 
 
-/* ══════════════════════════════════════════════════════
-   नयाँ थपिएको: Filter Data (All Data / Summary Data)
-   ══════════════════════════════════════════════════════ */
+
 function applyFilterData(){
   const val = document.getElementById("filterDataSelect").value;
   const summarySection = document.getElementById("summarySection");
 
   if(val !== "summary"){
-    // All Data — summary लुकाउने, main table देखाउने
+    
     summarySection.style.display = "none";
     document.getElementById("resultTable").style.display = "table";
     return;
   }
 
-  // Summary Data — feeder-wise sum बनाउने
+ 
   if(_lastFilteredRows.length === 0){
     alert("⚠ पहिला मिति राखि Search गर्नुहोस् !!!");
     document.getElementById("filterDataSelect").value = "all";
     return;
   }
 
-  // Feeder key = "लाईन|फिडर"
+  
   const map = {};
   _lastFilteredRows.forEach(row => {
     const lineVal = row["लाईन"] || "";
@@ -652,13 +701,13 @@ function applyFilterData(){
     }
   });
 
-  // Header मिति range
+  
   const fromLabel = _lastFromDate || "—";
   const toLabel = _lastToDate || "—";
   document.getElementById("sumHeader").textContent =
     `📋 Summary Report | मिति: ${fromLabel} देखि ${toLabel} सम्म`;
 
-  // Summary table populate गर्ने
+  
   const sb = document.getElementById("summaryBody");
   sb.innerHTML = "";
   let grandMin = 0;
@@ -677,7 +726,7 @@ function applyFilterData(){
     sb.appendChild(tr);
   });
 
-  // Grand total row
+  
   const gHH = Math.floor(grandMin / 60);
   const gMM = grandMin % 60;
   const totalKeys = Object.keys(map).length;
@@ -697,11 +746,11 @@ grandTr.innerHTML = `
 </td>`;
   sb.appendChild(grandTr);
 
-  // Main table लुकाउने, summary देखाउने
+  
   document.getElementById("resultTable").style.display = "none";
   summarySection.style.display = "block";
 }
-/* ══════════════════════════════════════════════════════ */
+
 
 
 function printTable() {
@@ -713,7 +762,7 @@ function printTable() {
     return;
   }
 
-  // Summary mode मा छ भने summary print
+  
   const filterVal = document.getElementById("filterDataSelect").value;
   let tableEl;
   if(filterVal === "summary" && document.getElementById("summarySection").style.display !== "none"){
