@@ -599,7 +599,10 @@ if(userTo && userTo > lastDate){
     });
 
     
+
 filtered.sort((a, b) => {
+
+  
   const dateA = normalizeDate(a["मिति"] || "");
   const dateB = normalizeDate(b["मिति"] || "");
 
@@ -607,10 +610,28 @@ filtered.sort((a, b) => {
   if (dateA > dateB) return 1;
 
   
-  const tripA = a["फिडर Trip वा Shutdown समय"] || "";
-  const tripB = b["फिडर Trip वा Shutdown समय"] || "";
+  const getMinutes = (timeStr) => {
+    if (!timeStr) return 0;
 
-  return tripA.localeCompare(tripB);
+    const d = new Date(timeStr);
+
+    if (!isNaN(d)) {
+      return d.getHours() * 60 + d.getMinutes();
+    }
+
+    
+    const parts = timeStr.split(":");
+    if (parts.length >= 2) {
+      return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+    }
+
+    return 0;
+  };
+
+  const tripA = getMinutes(a["फिडर Trip वा Shutdown समय"]);
+  const tripB = getMinutes(b["फिडर Trip वा Shutdown समय"]);
+
+  return tripA - tripB;
 });
 
     
